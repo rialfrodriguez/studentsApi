@@ -15,6 +15,7 @@ using studentsApi.Persistence;
 using studentsApi.Core.Models;
 using AutoMapper;
 using studentsApi.Core;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace studentsApi
 {
@@ -40,6 +41,12 @@ namespace studentsApi
                   Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Api test", Description = "Swagger Core api", Version = "1.0"});
+            }
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,7 +65,16 @@ namespace studentsApi
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Core API");
+                }
+            );
+            
             DummyData.Initialize(context);
+
         }
     }
 }
