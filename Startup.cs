@@ -12,6 +12,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using studentsApi.Persistence;
+using studentsApi.Core.Models;
+using AutoMapper;
+using studentsApi.Core;
 
 namespace studentsApi
 {
@@ -27,15 +30,22 @@ namespace studentsApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-              services.AddDbContext<MyDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            services.AddScoped<IStudentRepository, StudentRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddAutoMapper();
+
+            services.AddDbContext<MyDbContext>(options =>
+              options.UseSqlite(
+                  Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, 
+                              IHostingEnvironment env,
+                              MyDbContext context)
         {
             if (env.IsDevelopment())
             {
@@ -48,6 +58,7 @@ namespace studentsApi
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            DummyData.Initialize(context);
         }
     }
 }
