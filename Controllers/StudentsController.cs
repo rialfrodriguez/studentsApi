@@ -21,6 +21,10 @@ namespace studentsApi.Controllers
             this.mapper = mapper;
         }
 
+        /// <summary>
+        /// Retornar la lista de estudiantes
+        /// </summary>
+        /// <returns>Datos del estudiante</returns>
         [HttpGet]
         public async Task<QueryResultResource<StudentResource>> GetStudents(StudentQueryResource filterResource)
         {
@@ -30,6 +34,11 @@ namespace studentsApi.Controllers
            return mapper.Map<QueryResult<Student>, QueryResultResource<StudentResource>>(queryResult);
         }
 
+        /// <summary>
+        /// Retornar el estudiante mediante el parametro ID
+        /// </summary>
+        /// <param name="id">ID del estudiante</param>
+        /// <returns>Datos del estudiante</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetStudent(int id)
         {
@@ -41,6 +50,10 @@ namespace studentsApi.Controllers
             return Ok(studentResource);
         }
 
+        /// <summary>
+        /// Insertar el objeto estudiante
+        /// </summary>
+        /// <returns>Datos del estudiante</returns>
         [HttpPost()]
         public async Task<IActionResult> CreateStudent([FromBody]StudentResource studentResource)
         {
@@ -51,13 +64,18 @@ namespace studentsApi.Controllers
             repository.Add(student);
             await unitOfWork.CompleteAsync();
 
-            student = await repository.GetStudentAsync(student.StudentId);
+            // student = await repository.GetStudentAsync(student.StudentId);
+            // var result = mapper.Map<Student, StudentResource>(student);
 
-            var result = mapper.Map<Student, StudentResource>(student);
-
-            return Ok(result);
+            // retornamos 201
+            return CreatedAtAction(nameof(GetStudent), new {id = student.StudentId}, student);
         }
 
+        /// <summary>
+        /// Actualizar los datos del estudiante
+        /// </summary>
+        /// <param name="id">ID del estudiante</param>
+        /// <returns>Datos del estudiante actualizado</returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateStudent(int id, [FromBody]StudentResource studentResource)
         {
@@ -79,6 +97,11 @@ namespace studentsApi.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Eliminar un estudiante
+        /// </summary>
+        /// <param name="id">ID del estudiante</param>
+        /// <returns>Id del estudiante eliminado</returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStudent(int id)
         {
@@ -87,7 +110,6 @@ namespace studentsApi.Controllers
                 return NotFound();
 
             repository.Remove(student);
-
             await unitOfWork.CompleteAsync();
 
             return Ok(id);
